@@ -545,13 +545,8 @@ class OpenGLRenderer extends DisplayObjectRenderer
 	{
 		if (shader != null)
 		{
-			// TODO: Change of GL context?
-
-			if (shader.__context == null)
-			{
-				shader.__context = __context3D;
-				shader.__init();
-			}
+			// Shader 可跨恢复事件保留，程序及参数位置必须跟随有效设备重建。
+			shader.__setContext(__context3D);
 
 			// currentShader = shader;
 			return shader;
@@ -564,13 +559,8 @@ class OpenGLRenderer extends DisplayObjectRenderer
 	{
 		if (shader != null)
 		{
-			// TODO: Change of GL context?
-
-			if (shader.__context == null)
-			{
-				shader.__context = __context3D;
-				shader.__init();
-			}
+			// Shader 可跨恢复事件保留，程序及参数位置必须跟随有效设备重建。
+			shader.__setContext(__context3D);
 
 			// currentShader = shader;
 			return shader;
@@ -583,13 +573,8 @@ class OpenGLRenderer extends DisplayObjectRenderer
 	{
 		if (shader != null)
 		{
-			// TODO: Change of GL context?
-
-			if (shader.__context == null)
-			{
-				shader.__context = __context3D;
-				shader.__init();
-			}
+			// Shader 可跨恢复事件保留，程序及参数位置必须跟随有效设备重建。
+			shader.__setContext(__context3D);
 
 			// currentShader = shader;
 			return shader;

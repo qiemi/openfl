@@ -502,6 +502,18 @@ class Context3DGraphics
 	{
 		if (!graphics.__visible || graphics.__commands.length == 0) return;
 
+		if (graphics.__hardwareContext != renderer.__context3D.__context)
+		{
+			// 不向新设备删除旧句柄；CPU 命令和顶点数据用于下一次完整上传。
+			graphics.__hardwareContext = renderer.__context3D.__context;
+			graphics.__quadBuffer = null;
+			graphics.__triangleIndexBuffer = null;
+			graphics.__vertexBuffer = null;
+			graphics.__vertexBufferUVT = null;
+			graphics.__triangleIndexBufferCount = graphics.__vertexBufferCount = graphics.__vertexBufferCountUVT = 0;
+			graphics.__hardwareDirty = true;
+		}
+
 		if ((graphics.__bitmap != null && !graphics.__dirty) || !isCompatible(graphics))
 		{
 			// if (graphics.__quadBuffer != null || graphics.__triangleIndexBuffer != null) {

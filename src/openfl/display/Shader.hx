@@ -215,6 +215,8 @@ class Shader
 	@:noCompletion private var __colorMultiplier:ShaderParameter<Float>;
 	@:noCompletion private var __colorOffset:ShaderParameter<Float>;
 	@:noCompletion private var __context:Context3D;
+	/** 程序创建时的设备代次，不能只依赖可继续存活的 GL 对象。 */
+	@:noCompletion private var __programContext:#if lime lime.graphics.RenderContext #else Dynamic #end;
 	@:noCompletion private var __data:ShaderData;
 	@:noCompletion private var __glFragmentSource:String;
 	@:noCompletion private var __glSourceDirty:Bool;
@@ -449,6 +451,19 @@ class Shader
 		#end
 	}
 
+	/** 切换上下文时保留业务参数，只丢弃失效的 GPU 程序与位置。 */
+	@:noCompletion private function __setContext(context:Context3D):Void
+	{
+		__context = context;
+		if (program != null && __programContext != context.__context)
+		{
+			// 旧句柄可能属于已恢复的同一个 GL 对象，不能在新设备上销毁它们。
+			program = null;
+			glProgram = null;
+		}
+		__init();
+	}
+
 	@:noCompletion private function __init():Void
 	{
 		if (__data == null)
@@ -479,7 +494,7 @@ class Shader
 			__processGLData(glFragmentSource, "uniform");
 		}
 
-		if (__context != null && program == null)
+		if (__context != null && __context.__context != null && program == null)
 		{
 			var gl = __context.gl;
 
@@ -517,6 +532,7 @@ class Shader
 
 			if (program != null)
 			{
+				__programContext = __context.__context;
 				glProgram = program.__glProgram;
 
 				for (input in __inputBitmapData)
@@ -793,6 +809,13 @@ class Shader
 		}
 
 		var gl = __context.gl;
+
+		// ShaderBuffer 会被 Graphics 对象池长期复用，CPU 数据保留、GPU 缓冲按设备重建。
+		if (shaderBuffer.paramDataContext != __context.__context)
+		{
+			shaderBuffer.paramDataBuffer = null;
+			shaderBuffer.paramDataContext = __context.__context;
+		}
 
 		if (shaderBuffer.paramDataLength > 0)
 		{

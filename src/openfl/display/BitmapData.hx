@@ -947,8 +947,9 @@ class BitmapData implements IBitmapDrawable
 				_colorTransform.__combine(colorTransform);
 			}
 
-			if (__renderer == null)
+			if (__renderer == null || __renderer.__context3D.__context != Lib.current.stage.context3D.__context)
 			{
+				// 离屏目标仍可存活，但旧渲染器及其状态缓存不能跨设备继续使用。
 				__renderer = new OpenGLRenderer(Lib.current.stage.context3D, this);
 			}
 			else
@@ -3170,9 +3171,12 @@ class BitmapData implements IBitmapDrawable
 		}
 
 		if (allowFramebuffer
-			&& __texture != null
-			&& __texture.__glFramebuffer != null
-			&& Lib.current.stage.__renderer.__type == OPENGL)
+			&& (!readable || (__texture != null && __texture.__glFramebuffer != null))
+			&& Lib.current != null && Lib.current.stage != null
+			&& Lib.current.stage.context3D != null
+			&& Lib.current.stage.__renderer != null
+			&& Lib.current.stage.__renderer.__type == OPENGL
+			&& (!readable || __textureContext == Lib.current.stage.context3D.__context))
 		{
 			var renderer:OpenGLRenderer = cast Lib.current.stage.__renderer;
 			var context = renderer.__context3D;
@@ -3184,7 +3188,8 @@ class BitmapData implements IBitmapDrawable
 			var cacheRTTAntiAlias = context.__state.renderToTextureAntiAlias;
 			var cacheRTTSurfaceSelector = context.__state.renderToTextureSurfaceSelector;
 
-			context.setRenderToTexture(__texture);
+			// GPU 目标恢复后可能仍持有旧 TextureBase，先解析当前设备的纹理。
+			context.setRenderToTexture(getTexture(context));
 
 			if (useScissor)
 			{

@@ -214,6 +214,22 @@ class DisplayObjectRenderer extends EventDispatcher
 		if (displayObject == null) return false;
 		var renderer = this;
 
+		#if lime
+		var cachedRenderer = displayObject.__cacheBitmapRenderer;
+		if (renderer.__type == OPENGL && cachedRenderer != null && cachedRenderer.__type == OPENGL
+			&& cachedRenderer.__context != renderer.__context)
+		{
+			// GPU 位图缓存没有可重新上传的像素，必须从原显示对象再次绘制。
+			displayObject.__cacheBitmap = null;
+			displayObject.__cacheBitmapData = null;
+			displayObject.__cacheBitmapData2 = null;
+			displayObject.__cacheBitmapData3 = null;
+			displayObject.__cacheBitmapRenderer = null;
+			displayObject.__renderDirty = true;
+			force = true;
+		}
+		#end
+
 		switch (displayObject.__drawableType)
 		{
 			case BITMAP:

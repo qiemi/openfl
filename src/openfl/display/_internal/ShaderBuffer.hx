@@ -42,6 +42,8 @@ class ShaderBuffer
 	public var paramCount:Int;
 	public var paramData:Float32Array;
 	public var paramDataBuffer:GLBuffer;
+	/** 参数缓冲所属的设备代次，恢复后不能仅比较原始 GL 对象。 */
+	public var paramDataContext:#if lime lime.graphics.RenderContext #else Dynamic #end;
 	public var paramDataLength:Int;
 	public var paramFloatCount:Int;
 	public var paramIntCount:Int;

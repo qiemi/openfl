@@ -58,6 +58,8 @@ import js.html.CanvasRenderingContext2D;
 	@:noCompletion private var __commands:DrawCommandBuffer;
 	@:noCompletion private var __dirty(default, set):Bool = true;
 	@:noCompletion private var __hardwareDirty:Bool;
+	/** CPU 命令可以保留，顶点与索引缓冲仅能用于其创建时的设备。 */
+	@:noCompletion private var __hardwareContext:#if lime lime.graphics.RenderContext #else Dynamic #end;
 	@:noCompletion private var __height:Int;
 	@:noCompletion private var __managed:Bool;
 	@:noCompletion private var __positionX:Float;
